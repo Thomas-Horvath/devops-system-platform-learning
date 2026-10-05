@@ -1965,3 +1965,1063 @@ kubectl
 ```
 
 Ezért a shell és a CLI magabiztos használata a System / DevOps / Platform Engineer egyik alapvető készsége.
+
+
+# Process, Thread, Memory és System Call alapok
+
+## 1. Program és process
+
+A **program** egy passzív kód vagy végrehajtható állomány a háttértáron.
+
+Például:
+
+```text
+node
+nginx
+postgres
+chrome
+```
+
+Amikor egy programot elindítunk, az operációs rendszer létrehoz egy:
+
+```text
+process
+```
+
+folyamatot.
+
+Egyszerű modell:
+
+```text
+Program
+↓
+elindítás
+↓
+Process
+```
+
+A process egy futó program példánya.
+
+---
+
+# 2. Mi tartozik egy processhez?
+
+Egy processhez többek között tartozhat:
+
+```text
+Process
+│
+├── PID
+├── programkód
+├── memória
+├── stack
+├── heap
+├── nyitott fájlok
+├── CPU állapot
+├── jogosultságok
+└── threadek
+```
+
+---
+
+# 3. PID
+
+A **PID = Process ID**.
+
+Az operációs rendszer minden processhez azonosítót rendel.
+
+Példa:
+
+```text
+PID 1200 → nginx
+PID 1300 → node
+PID 1500 → postgres
+```
+
+Az OS ezzel tudja megkülönböztetni a futó processeket.
+
+---
+
+# 4. Egy programból több process
+
+Egy programból több process is futhat.
+
+Például:
+
+```text
+Chrome program
+
+↓
+Chrome process
+Chrome process
+Chrome process
+Chrome process
+```
+
+Tehát:
+
+```text
+PROGRAM
+=
+kód / executable
+```
+
+```text
+PROCESS
+=
+annak egy futó példánya
+```
+
+---
+
+# 5. Thread
+
+A **thread** egy processen belüli végrehajtási szál.
+
+Példa:
+
+```text
+Process
+│
+├── Thread 1
+├── Thread 2
+├── Thread 3
+└── Thread 4
+```
+
+A process biztosítja az erőforrásokat és a memóriateret.
+
+A thread a végrehajtási egység.
+
+---
+
+# 6. Process és thread hasonlat
+
+Éttermis hasonlat:
+
+```text
+Process
+=
+étterem
+```
+
+Az étteremnek vannak:
+
+```text
+helyiségei
+eszközei
+készletei
+```
+
+A threadek:
+
+```text
+szakácsok
+```
+
+Egy étteremben több szakács dolgozhat.
+
+Hasonlóan:
+
+```text
+1 process
++
+több thread
+```
+
+is létezhet.
+
+---
+
+# 7. Miért vannak threadek?
+
+Egy alkalmazás egyszerre több feladatot kezelhet.
+
+Példa:
+
+```text
+Process
+
+Thread 1 → UI
+Thread 2 → network
+Thread 3 → calculation
+```
+
+Ez lehetővé teszi, hogy több tevékenység haladjon egymás mellett.
+
+---
+
+# 8. Process isolation
+
+Külön processzek általában külön memóriaterületet kapnak.
+
+Példa:
+
+```text
+Node process
+Memory A
+
+PostgreSQL process
+Memory B
+
+Nginx process
+Memory C
+```
+
+Egy process nem írhat csak úgy egy másik process memóriájába.
+
+Ez fontos:
+
+```text
+stabilitás
+biztonság
+hibaelkülönítés
+```
+
+szempontjából.
+
+---
+
+# 9. Processzek kommunikációja
+
+Külön processzeknek kommunikációs mechanizmusokra van szükségük.
+
+Ezeket összefoglalóan:
+
+```text
+IPC
+=
+Inter-Process Communication
+```
+
+néven ismerjük.
+
+Példák:
+
+```text
+pipes
+sockets
+shared memory
+signals
+```
+
+DevOps szempontból nagyon fontos:
+
+```text
+socket
+```
+
+Példa:
+
+```text
+Node process
+↓
+TCP socket
+↓
+PostgreSQL process
+```
+
+---
+
+# 10. Scheduler
+
+Tegyük fel:
+
+```text
+Thread A
+Thread B
+Thread C
+Thread D
+Thread E
+```
+
+de csak néhány CPU core áll rendelkezésre.
+
+Az operációs rendszer schedulerének feladata eldönteni:
+
+```text
+melyik futtatható thread
+mikor kapjon CPU-időt
+```
+
+Egyszerű modell:
+
+```text
+Threads
+↓
+Scheduler
+↓
+CPU cores
+```
+
+---
+
+# 11. Multitasking
+
+A CPU és az operációs rendszer nagyon gyorsan váltogat a futtatandó feladatok között.
+
+Például:
+
+```text
+Thread A
+↓
+Thread B
+↓
+Thread C
+↓
+Thread A
+↓
+Thread D
+```
+
+Ezért úgy érzékeljük, hogy sok program egyszerre fut.
+
+---
+
+# 12. Context switch
+
+Ha a CPU egyik threadről másik threadre vált:
+
+```text
+Thread A
+↓
+Thread B
+```
+
+az:
+
+```text
+context switch
+```
+
+Az operációs rendszernek el kell mentenie az egyik thread CPU-állapotát és vissza kell töltenie a másikét.
+
+Egyszerűen:
+
+```text
+A fut
+↓
+A állapot mentése
+↓
+B állapot betöltése
+↓
+B fut
+```
+
+A context switchnek van teljesítményköltsége.
+
+---
+
+# 13. RAM
+
+A **RAM** a számítógép gyors, ideiglenes munkamemóriája.
+
+Amikor egy program fut:
+
+```text
+Storage
+↓
+program
+↓
+Process
+↓
+RAM használat
+```
+
+A futó processzek memóriát használnak.
+
+---
+
+# 14. Process memória
+
+Egy process memóriafelépítése leegyszerűsítve:
+
+```text
+Process Memory
+│
+├── Code
+├── Data
+├── Heap
+└── Stack
+```
+
+A process számára úgy tűnik, mintha saját memóriaterülete lenne.
+
+---
+
+# 15. Virtual memory
+
+A process által használt címek általában:
+
+```text
+virtual addresses
+```
+
+Nem közvetlen fizikai RAM-címek.
+
+Egyszerű modell:
+
+```text
+Process
+↓
+Virtual Address
+↓
+Memory Management
+↓
+Physical RAM
+```
+
+---
+
+# 16. Miért fontos a virtual memory?
+
+A virtual memory többek között:
+
+```text
+process isolation
+egyszerűbb memory management
+nagy logikai címtér
+```
+
+biztosítását segíti.
+
+Példa:
+
+```text
+Process A
+Virtual Memory A
+
+Process B
+Virtual Memory B
+```
+
+Mindkettő saját címtartományt érzékel.
+
+---
+
+# 17. Memory page
+
+A memóriát az OS kisebb egységekre osztja.
+
+Ezek:
+
+```text
+pages
+```
+
+Példa:
+
+```text
+Virtual Page 1
+Virtual Page 2
+Virtual Page 3
+```
+
+A fizikai RAM oldalaihoz / frame-jeihez rendelhetők.
+
+Egyszerű modell:
+
+```text
+Virtual Page
+↓
+Page Table
+↓
+Physical Memory
+```
+
+---
+
+# 18. Stack
+
+A **stack** főleg a függvényhívások futási állapotához kapcsolódik.
+
+Példa:
+
+```text
+main()
+↓
+functionA()
+↓
+functionB()
+```
+
+Stack:
+
+```text
+functionB
+functionA
+main
+```
+
+A legutoljára bekerült elem távozik először.
+
+Ez:
+
+```text
+LIFO
+=
+Last In, First Out
+```
+
+---
+
+# 19. Heap
+
+A **heap** dinamikusan lefoglalt memória.
+
+Itt lehetnek például:
+
+```text
+objectek
+array-ek
+dinamikus adatstruktúrák
+```
+
+Egyszerű különbség:
+
+```text
+Stack
+=
+függvényhívásokhoz kapcsolódó futási állapot
+```
+
+```text
+Heap
+=
+dinamikusan létrejövő adatok
+```
+
+A pontos működés a nyelvtől és runtime-tól is függ.
+
+---
+
+# 20. Memory leak
+
+Ha egy program memóriát foglal, de azt többé nem tudja megfelelően felszabadítani:
+
+```text
+memory leak
+```
+
+alakulhat ki.
+
+Példa:
+
+```text
+App indul
+200 MB
+
+később
+1 GB
+
+később
+4 GB
+
+később
+8 GB
+```
+
+Ez szervereken komoly probléma lehet.
+
+---
+
+# 21. Swap
+
+Ha kevés a RAM, az operációs rendszer használhat:
+
+```text
+swap
+```
+
+területet.
+
+Ez háttértáron található.
+
+Egyszerű modell:
+
+```text
+RAM
+↓
+memory pressure
+↓
+ritkábban használt memóriaoldalak
+↓
+SWAP
+↓
+SSD / disk
+```
+
+---
+
+# 22. Swap és RAM különbsége
+
+A swap nem azonos a RAM-mal.
+
+```text
+RAM
+=
+nagyon gyors
+```
+
+```text
+Swap
+=
+háttértár
+=
+lassabb
+```
+
+Ezért:
+
+```text
+8 GB RAM + 8 GB swap
+```
+
+nem ugyanaz, mint:
+
+```text
+16 GB RAM
+```
+
+---
+
+# 23. Out Of Memory
+
+Ha:
+
+```text
+RAM elfogy
++
+nincs elegendő swap
+```
+
+akkor:
+
+```text
+Out Of Memory
+```
+
+helyzet alakulhat ki.
+
+Linuxban később találkozunk az:
+
+```text
+OOM Killer
+```
+
+mechanizmussal.
+
+---
+
+# 24. User space
+
+A normál alkalmazások általában:
+
+```text
+user space
+```
+
+területen futnak.
+
+Például:
+
+```text
+Node.js
+Nginx
+PostgreSQL
+browser
+VS Code
+```
+
+---
+
+# 25. Kernel space
+
+A kernel privilegizált környezetben fut.
+
+Hozzáférhet többek között:
+
+```text
+CPU
+RAM
+storage
+network hardware
+drivers
+process management
+```
+
+erőforrásokhoz.
+
+---
+
+# 26. User space és kernel space
+
+A szétválasztás célja:
+
+```text
+biztonság
+stabilitás
+hozzáférés kontrollálása
+```
+
+Egyszerű modell:
+
+```text
+USER SPACE
+
+Node
+Nginx
+PostgreSQL
+Browser
+
+──────────────
+
+KERNEL SPACE
+
+Kernel
+Drivers
+Memory Management
+Scheduler
+Networking
+Filesystem
+```
+
+---
+
+# 27. Miért nem érheti el az alkalmazás közvetlenül a hardvert?
+
+Ha minden alkalmazás közvetlenül kezelhetné:
+
+```text
+RAM
+disk
+network card
+CPU
+```
+
+erőforrásokat, egyetlen programhibával az egész rendszer sérülhetne.
+
+Ezért az alkalmazás:
+
+```text
+korlátozott környezet
+```
+
+alatt fut.
+
+A kernel végzi a privilegizált műveleteket.
+
+---
+
+# 28. System call
+
+A **system call** olyan mechanizmus, amelyen keresztül egy user-space program szolgáltatást kér a kerneltől.
+
+Egyszerű modell:
+
+```text
+Application
+↓
+System Call
+↓
+Kernel
+↓
+Hardware / OS resource
+```
+
+---
+
+# 29. System call példák
+
+Kernel segítség szükséges például:
+
+```text
+fájl megnyitásához
+fájl olvasásához
+fájl írásához
+process létrehozásához
+memory kezeléshez
+network socket használatához
+```
+
+---
+
+# 30. Fájlolvasási példa
+
+Alkalmazás:
+
+```text
+read config.txt
+```
+
+Egyszerűsített folyamat:
+
+```text
+Application
+↓
+system call
+↓
+Kernel
+↓
+Filesystem
+↓
+Driver
+↓
+Storage
+```
+
+Az adat visszafelé:
+
+```text
+Storage
+↓
+Kernel
+↓
+Application
+```
+
+---
+
+# 31. Hálózati példa
+
+Egy Node szerver:
+
+```text
+server.listen(3000)
+```
+
+mögött leegyszerűsítve:
+
+```text
+Node process
+↓
+system call
+↓
+Kernel network stack
+↓
+socket
+↓
+network interface
+↓
+network
+```
+
+A Node program nem közvetlenül a hálózati kártyát kezeli.
+
+---
+
+# 32. User mode és kernel mode
+
+Normál program:
+
+```text
+user mode
+```
+
+System call során:
+
+```text
+user mode
+↓
+system call
+↓
+kernel mode
+↓
+kernel operation
+↓
+user mode
+```
+
+Ez szabályozott belépési pont a kernel funkcióihoz.
+
+---
+
+# 33. Teljes OS mentális modell
+
+```text
+PROGRAM
+↓
+PROCESS
+↓
+THREAD
+↓
+SCHEDULER
+↓
+CPU
+```
+
+A process közben:
+
+```text
+PROCESS
+↓
+VIRTUAL MEMORY
+↓
+RAM / SWAP
+```
+
+Ha OS-erőforrást akar:
+
+```text
+APPLICATION
+↓
+SYSTEM CALL
+↓
+KERNEL
+↓
+FILESYSTEM / NETWORK / MEMORY / HARDWARE
+```
+
+---
+
+# 34. Teljes rendszerkép
+
+```text
+                   APPLICATION
+                        │
+                        ▼
+                     PROCESS
+                        │
+                ┌───────┴────────┐
+                │                │
+             THREADS         VIRTUAL MEMORY
+                │                │
+                ▼                ▼
+            SCHEDULER       RAM / SWAP
+                │
+                ▼
+              CPU
+
+
+APPLICATION
+     │
+     │ system call
+     ▼
+   KERNEL
+     │
+ ┌───┼──────────────┐
+ │   │              │
+ ▼   ▼              ▼
+Disk Network       Memory
+ │   │
+ ▼   ▼
+Hardware
+```
+
+---
+
+# 35. Legfontosabb fogalmak röviden
+
+## Program
+
+```text
+passzív kód
+```
+
+## Process
+
+```text
+futó program példánya
+```
+
+## PID
+
+```text
+process azonosító
+```
+
+## Thread
+
+```text
+végrehajtási szál
+```
+
+## Scheduler
+
+```text
+eldönti, melyik thread kap CPU-időt
+```
+
+## Context switch
+
+```text
+váltás egyik threadről a másikra
+```
+
+## RAM
+
+```text
+gyors ideiglenes memória
+```
+
+## Virtual memory
+
+```text
+a process által látott logikai memóriatér
+```
+
+## Stack
+
+```text
+függvényhívásokhoz kapcsolódó memória
+```
+
+## Heap
+
+```text
+dinamikusan lefoglalt memória
+```
+
+## Swap
+
+```text
+háttértáron lévő memória-kiegészítés
+```
+
+## User space
+
+```text
+normál alkalmazások környezete
+```
+
+## Kernel space
+
+```text
+privilegizált operációsrendszer-környezet
+```
+
+## System call
+
+```text
+az alkalmazás kérése a kernel felé
+```
+
+---
+
+# 36. DevOps szempontból
+
+Később ezekkel a problémákkal fogunk találkozni:
+
+```text
+high CPU usage
+high memory usage
+memory leak
+swap usage
+process crash
+OOM
+slow disk I/O
+network socket problem
+```
+
+A hibák megértésének alapja:
+
+```text
+process
+thread
+scheduler
+memory
+kernel
+system calls
+```
+
+Ezért fontos ezeket az alapokat még a Linux parancsok előtt megérteni.
