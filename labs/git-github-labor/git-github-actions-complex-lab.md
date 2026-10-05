@@ -131,7 +131,7 @@ A projekt a WSL Linux fájlrendszerében legyen, ne `/mnt/c/...` alatt.
 Menj a projektmappádba:
 
 ```bash
-cd ~/projects
+cd ~/projects/LABS
 ```
 
 Hozz létre egy új könyvtárat.
@@ -155,7 +155,7 @@ pwd
 A végének körülbelül ilyennek kell lennie:
 
 ```text
-/home/<user>/projects/git-github-actions-lab
+/home/<user>/projects/LABS/git-github-actions-lab
 ```
 
 ---
