@@ -781,3 +781,465 @@ filesystem
 - `>>` appends to the file.
 - `tail -f` follows new log entries.
 - Always check the path before deleting files.
+
+
+
+# 15. Users és groups
+
+Linuxban minden fájl és folyamat valamilyen userhez és grouphoz kapcsolódik.
+
+Példa:
+
+```text
+-rw-r--r-- 1 tamas developers 120 Oct 7 notes.txt
+```
+
+Itt:
+
+```text
+owner/user = tamas
+group      = developers
+```
+
+A group lehetővé teszi, hogy több user közös jogosultságokat kapjon.
+
+Példa:
+
+```text
+developers
+├── anna
+├── bela
+└── tamas
+```
+
+## Aktuális user
+
+```bash
+whoami
+```
+
+## User és group információk
+
+```bash
+id
+```
+
+Példa:
+
+```text
+uid=1000(tamas)
+gid=1000(tamas)
+groups=1000(tamas),27(sudo)
+```
+
+Fogalmak:
+
+```text
+UID = User ID
+GID = Group ID
+```
+
+**English:**
+
+> `id` shows the user's UID, GID and groups.
+
+---
+
+# 16. Linux permissions
+
+Három alap permission:
+
+```text
+r = read
+w = write
+x = execute
+```
+
+Három kategóriára:
+
+```text
+user
+group
+others
+```
+
+Példa:
+
+```text
+-rwxr-xr--
+```
+
+Felbontva:
+
+```text
+-   rwx   r-x   r--
+    user  group others
+```
+
+Jelentése:
+
+```text
+user   → read, write, execute
+group  → read, execute
+others → read
+```
+
+---
+
+# 17. File type
+
+Az első karakter nem permission.
+
+```text
+- = regular file
+d = directory
+```
+
+Példa:
+
+```text
+drwxr-xr-x
+```
+
+A `d` azt jelenti, hogy directory.
+
+---
+
+# 18. Permissions fájlnál és könyvtárnál
+
+## Fájl
+
+```text
+r = read file
+w = modify file
+x = execute file
+```
+
+## Directory
+
+```text
+r = list directory contents
+w = create/delete entries
+x = enter/traverse directory
+```
+
+A directory `x` permissionje különösen fontos.
+
+---
+
+# 19. chmod
+
+A `chmod` jelentése:
+
+```text
+change mode
+```
+
+Jogosultságok módosítására használjuk.
+
+## Szimbolikus forma
+
+```bash
+chmod u+x script.sh
+```
+
+Jelentése:
+
+```text
+u = user
++x = add execute permission
+```
+
+Példák:
+
+```bash
+chmod g+w file.txt
+chmod o-r file.txt
+```
+
+Jelölések:
+
+```text
+u = user
+g = group
+o = others
+a = all
+```
+
+Műveletek:
+
+```text
++ = add
+- = remove
+= = set
+```
+
+---
+
+# 20. Numerikus chmod
+
+Az értékek:
+
+```text
+r = 4
+w = 2
+x = 1
+```
+
+Kombinációk:
+
+```text
+rwx = 7
+rw- = 6
+r-x = 5
+r-- = 4
+-w- = 2
+--x = 1
+--- = 0
+```
+
+Példa:
+
+```bash
+chmod 755 script.sh
+```
+
+Felbontva:
+
+```text
+7 = rwx
+5 = r-x
+5 = r-x
+```
+
+Eredmény:
+
+```text
+rwxr-xr-x
+```
+
+Másik gyakori:
+
+```bash
+chmod 644 file.txt
+```
+
+Felbontva:
+
+```text
+6 = rw-
+4 = r--
+4 = r--
+```
+
+Eredmény:
+
+```text
+rw-r--r--
+```
+
+---
+
+# 21. chown
+
+A `chown` jelentése:
+
+```text
+change owner
+```
+
+Tulajdonos módosítása:
+
+```bash
+sudo chown tamas file.txt
+```
+
+Tulajdonos és group:
+
+```bash
+sudo chown tamas:developers file.txt
+```
+
+Könyvtár teljes tartalmára:
+
+```bash
+sudo chown -R tamas:developers project/
+```
+
+A `-R` jelentése:
+
+```text
+recursive
+```
+
+---
+
+# 22. chgrp
+
+Csak a group módosítása:
+
+```bash
+chgrp developers file.txt
+```
+
+A `chgrp` jelentése:
+
+```text
+change group
+```
+
+---
+
+# 23. sudo
+
+A `sudo` egy parancs emelt jogosultsággal történő futtatását teszi lehetővé.
+
+Példa:
+
+```bash
+sudo apt update
+```
+
+Mental model:
+
+```text
+normal user
+    ↓
+sudo
+    ↓
+privileged command
+```
+
+**English:**
+
+> `sudo` runs a command with elevated privileges.
+
+A `sudo` nem azt jelenti, hogy folyamatosan rootként dolgozunk.
+
+---
+
+# 24. Root user
+
+A root user:
+
+```text
+UID = 0
+```
+
+Nagyon magas jogosultságokkal rendelkezik.
+
+Biztonságos alapelv:
+
+```text
+normal user by default
+sudo only when needed
+```
+
+**English:**
+
+> Use sudo only when necessary.
+
+---
+
+# 25. Permission denied troubleshooting
+
+Ha ezt kapjuk:
+
+```text
+Permission denied
+```
+
+ne rögtön `sudo` legyen az első megoldás.
+
+Ellenőrzés:
+
+```bash
+ls -l file.txt
+whoami
+id
+```
+
+Vizsgáld meg:
+
+```text
+Who owns the file?
+Which group owns it?
+Which permissions apply to me?
+```
+
+---
+
+# 26. Jogosultsági példa
+
+```text
+-rw-r----- 1 tamas developers file.txt
+```
+
+Felbontás:
+
+```text
+user   = rw-
+group  = r--
+others = ---
+```
+
+Ha az aktuális user:
+
+```text
+tamas
+```
+
+akkor:
+
+```text
+read + write
+```
+
+Ha más user, de tagja a `developers` groupnak:
+
+```text
+read only
+```
+
+Ha egyik sem:
+
+```text
+no access
+```
+
+---
+
+# 27. Fontos angol szókincs
+
+| English | Magyar |
+|---|---|
+| user | felhasználó |
+| group | csoport |
+| owner | tulajdonos |
+| permission | jogosultság |
+| read | olvasás |
+| write | írás |
+| execute | végrehajtás |
+| user ID / UID | felhasználói azonosító |
+| group ID / GID | csoportazonosító |
+| elevated privileges | emelt jogosultság |
+| root user | root / rendszergazdai felhasználó |
+| permission denied | hozzáférés megtagadva |
+| change owner | tulajdonos módosítása |
+| recursive | rekurzív |
+
+---
+
+# 28. B1 technikai mondatok
+
+- This file is owned by `tamas`.
+- The file belongs to the `developers` group.
+- This user can read and write the file.
+- The group can only read the file.
+- Other users have no access.
+- `chmod` changes file permissions.
+- `chown` changes the file owner.
+- `sudo` runs a command with elevated privileges.
+- Use sudo only when necessary.
+- I checked the file permissions.
+- The user does not have permission to modify the file.

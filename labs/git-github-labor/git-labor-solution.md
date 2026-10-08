@@ -1547,3 +1547,378 @@ Mi került a GitHubra?
 **A cél nem a Git-parancsok bemagolása, hanem a repository állapotának megértése.**
 
 Ez a szemlélet a későbbi DevOps, CI/CD és infrastruktúra-üzemeltetési feladatoknál is alapvető lesz.
+
+
+
+# 20. Code Review szimuláció
+
+A Pull Request már elkészült.
+
+A következő feladat annak szimulálása, hogy most nem fejlesztőként, hanem **reviewerként** vizsgáljuk meg a változtatást.
+
+A Pull Requestben ehhez elsősorban a:
+
+```text
+Files changed
+```
+
+fület használjuk.
+
+---
+
+## 20.1. Mi a Code Review?
+
+A **Code Review** során egy másik fejlesztő vagy csapattag ellenőrzi a módosításokat, mielőtt azok bekerülnek a célbranchbe.
+
+Tipikus workflow:
+
+```text
+Developer
+   ↓
+feature branch
+   ↓
+Pull Request
+   ↓
+Reviewer
+   ↓
+Code Review
+   ↓
+comments / approval / requested changes
+   ↓
+merge
+```
+
+A reviewer például ezeket nézi:
+
+```text
+érthető-e a kód?
+jók-e a nevek?
+van-e megfelelő teszt?
+nem került-e be felesleges fájl?
+nem került-e be secret?
+megfelel-e a feladat követelményeinek?
+```
+
+---
+
+## 20.2. Conversation comment és Review comment
+
+A Pull Requestben többféle komment létezik.
+
+### Conversation comment
+
+A PR `Conversation` részében írt komment egy általános hozzászólás.
+
+Például:
+
+```text
+I think we should add another test.
+```
+
+Ez teljesen érvényes kommunikáció, de nem ugyanaz, mint a formális Code Review.
+
+Mental model:
+
+```text
+Conversation comment
+=
+general Pull Request discussion
+```
+
+---
+
+### Line comment a Files changed részen
+
+A:
+
+```text
+Files changed
+```
+
+fülön konkrét kódsorhoz lehet megjegyzést írni.
+
+Például:
+
+```text
+Could we also test negative numbers?
+```
+
+Ez közvetlenül az adott kódrészlethez kapcsolódik.
+
+Több line comment is összegyűjthető egy review részeként, majd egyszerre elküldhető a:
+
+```text
+Submit review
+```
+
+gombbal.
+
+---
+
+## 20.3. Submit review lehetőségei
+
+Normál esetben egy reviewer a review végén háromféle eredményt választhat:
+
+```text
+Comment
+Approve
+Request changes
+```
+
+### Comment
+
+A reviewer megjegyzéseket küld, de nem ad hivatalos jóváhagyást és nem blokkolja formálisan a PR-t.
+
+Példa:
+
+```text
+Looks good overall.
+```
+
+---
+
+### Approve
+
+A reviewer hivatalosan jóváhagyja a Pull Requestet.
+
+Jelentése:
+
+> Átnéztem a változtatásokat, és szerintem merge-elhetők.
+
+**English:**
+
+> I reviewed the changes and approved the Pull Request.
+
+---
+
+### Request changes
+
+A reviewer azt jelzi, hogy a PR jelenlegi állapotában még módosítást igényel.
+
+Példa:
+
+```text
+Please add a test for negative numbers before merging.
+```
+
+---
+
+## 20.4. Fontos: a saját Pull Requestet nem lehet Approve-olni
+
+A laborban ugyanazzal a GitHub felhasználóval:
+
+- létrehoztuk a Pull Requestet,
+- és reviewerként is ugyanazzal a felhasználóval próbáltuk átnézni.
+
+Ez fontos különbséget okoz.
+
+A GitHub **nem engedi, hogy a Pull Request szerzője saját magának hivatalos approvalt adjon**.
+
+Ezért a saját PR esetén előfordulhat, hogy a:
+
+```text
+Submit review
+```
+
+ablakban csak:
+
+```text
+Comment
+```
+
+választható.
+
+Az:
+
+```text
+Approve
+```
+
+nem érhető el.
+
+Ez nem hiba, hanem GitHub-szabály.
+
+---
+
+## 20.5. Miért van ez így?
+
+A Code Review lényege az, hogy egy **másik ember** ellenőrizze a változtatást.
+
+Ha a PR szerzője saját magának approvalt adhatna:
+
+```text
+Developer
+↓
+creates PR
+↓
+approves own PR
+```
+
+akkor a review nem jelentene valódi független ellenőrzést.
+
+Valós csapatban:
+
+```text
+Developer A
+↓
+creates Pull Request
+
+Developer B
+↓
+reviews Pull Request
+↓
+Approve / Request changes
+```
+
+---
+
+## 20.6. Mit csináltunk a laborban?
+
+Mivel egyedül dolgozunk, a Code Review-t csak **szimulálni** tudjuk.
+
+A laborban ezt csináltuk:
+
+```text
+Pull Request
+↓
+Files changed
+↓
+line comments
+↓
+Submit review
+↓
+Comment
+```
+
+A végső review comment lehet például:
+
+```text
+Everything looks good. The changes are ready to merge.
+```
+
+Ez tartalmilag azt szimulálja, hogy a reviewer szerint a PR rendben van.
+
+Viszont a GitHub nem fogja:
+
+```text
+Approved
+```
+
+státuszba tenni, mert ugyanaz a felhasználó a PR szerzője is.
+
+---
+
+## 20.7. Saját PR vs másik reviewer
+
+### Saját Pull Request
+
+```text
+Author
+↓
+Files changed
+↓
+line comments
+↓
+Submit review
+↓
+Comment
+```
+
+Formális approval:
+
+```text
+nem adható
+```
+
+---
+
+### Másik reviewer
+
+```text
+Developer A creates PR
+↓
+Developer B reviews
+↓
+Files changed
+↓
+Submit review
+↓
+Comment / Approve / Request changes
+```
+
+Itt már valódi:
+
+```text
+Approved
+```
+
+státusz is létrejöhet.
+
+---
+
+## 20.8. A mi laborunk helyes megoldása
+
+A 20. feladatot ebben az egyszemélyes laborban így tekintjük teljesítettnek:
+
+```text
+1. Pull Request megnyitása
+2. Files changed fül
+3. kód átnézése
+4. line commentek hozzáadása
+5. Submit review
+6. Comment kiválasztása
+```
+
+Például:
+
+```text
+Everything looks good. The changes are ready to merge.
+```
+
+A valódi csapathelyzetben ezt egy másik reviewer akár:
+
+```text
+Approve
+```
+
+review-ként küldené el.
+
+---
+
+## 20.9. DevOps kapcsolat
+
+Code Review nem csak alkalmazáskódnál fontos.
+
+DevOps környezetben review tárgya lehet például:
+
+```text
+Dockerfile
+docker-compose.yml
+Terraform
+Kubernetes YAML
+Nginx configuration
+GitHub Actions workflow
+shell script
+```
+
+Példa:
+
+```text
+Engineer changes Terraform
+        ↓
+Pull Request
+        ↓
+another engineer reviews
+        ↓
+CI checks
+        ↓
+Approve
+        ↓
+merge
+```
+
+---
+
+# 21–24.
+
+A 21–24. feladatok megoldása változatlanul a korábban kidolgozott rész szerint folytatódik.
