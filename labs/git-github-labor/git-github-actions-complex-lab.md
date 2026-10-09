@@ -1532,3 +1532,6 @@ ellenőrzöm az eredményt
 ```
 
 mint a parancsok gyors bemásolása.
+
+
+
